@@ -1,0 +1,18 @@
+#!/bin/bash
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks-per-node=4
+#SBATCH --partition inf
+#SBATCH --time=2000:00:00
+#SBATCH --mem=20G
+#SBATCH -J pyAR
+#SBATCH --output %x.o%j
+#SBATCH --error %x.e%j
+
+ulimit -s unlimited
+
+#  . /etc/bash.bashrc.local
+
+module load hdf5/gcc5 netcdf/gcc5 
+
+time python3 HAR_DS.py

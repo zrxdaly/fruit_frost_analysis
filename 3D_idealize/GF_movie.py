@@ -1,10 +1,13 @@
 #%% get vertical slice from vrlab and load the data offline 
 # plot the data in animation
+# 3D data from ventilator model or other settings
+
 import numpy as np
 import glob as glob
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.animation import FuncAnimation
+
 
 #%%
 # dir1 = "/net/labdata/yi/basilisk/Experiment/3D_idealize/PARA/WALL/WALL_100m_visual/resultslice/"
@@ -56,7 +59,7 @@ def quiver2D(p_store, u_store, v_store, case_txt, x, y, nt, dt, fps):
     con = ax.contourf(X, Y, p_store[0,:,:], cmap=cm.viridis)
     fig.colorbar(con)
     x_dim = 20
-    y_dim = 5
+    y_dim = 2
     qax = ax.quiver(x[::x_dim], y[::y_dim], u_store[0,::y_dim,::x_dim], v_store[0,::y_dim,::x_dim])
     fig.tight_layout()
 
@@ -68,7 +71,46 @@ def quiver2D(p_store, u_store, v_store, case_txt, x, y, nt, dt, fps):
     anim = FuncAnimation(fig, animate, frames=np.linspace(0, len(p_store[0,...]), nt).astype(int), interval=1)
     anim.save('%s.mp4'%case_txt, dpi=300, fps=10, extra_args=['-vcodec', 'libx264'])
 
-quiver2D(b_tyx, u_tyx, w_tyx, "wall full R", x, y, 285, 4, int(len(b_tyx[0,...])/100))
+# quiver2D(b_tyx, u_tyx, w_tyx, "wall full R", x, y, 285, 4, int(len(b_tyx[0,...])/100))
 
+
+# %%
+def Fun2D(u_store, case_txt, x, y, nt, dt, fps):
+    X, Y = np.meshgrid(x, y) 
+    fig = plt.figure(figsize=(12, 2), dpi=300)
+    ax = plt.axes(xlabel='x', ylabel='y')
+    # levels = np.linspace(0.0, 0.6, 7)
+    levels = np.linspace(-0.3e-14, 0.3e-14, 7)
+    con = plt.contourf(X, Y, u_store[0,:,:], levels = levels, cmap=cm.coolwarm)
+    plt.xlim((0,500))
+    plt.colorbar()
+    plt.tight_layout()
+
+    def animate(i):
+    # global con
+        # for c in con.collections:
+        #     c.remove() 
+        con = plt.contourf(X, Y, u_store[i,:,:], levels = levels, cmap=cm.coolwarm)
+        plt.title(r'$%s$ t = %.5f sec' % (case_txt, i * dt))
+        return(con)
+
+    anim = FuncAnimation(fig, animate, frames=nt, interval=1)
+    anim.save('%s.mp4'%case_txt, dpi=300, fps=10, extra_args=['-vcodec', 'libx264'])
+    plt.show()
+
+#%%
+Fun2D(u_tyx, "u_slice", x, y, 285, 4, 10)
+#%%
+Fun2D(w_tyx, "w_slice", x, y, 285, 4, 10)
+
+#%%
+Fun2D(b_tyx, "b_slice", x, y, 285, 4, 10)
+
+# %%
+X, Y = np.meshgrid(x, y) 
+# levels = np.linspace(0.0, 0.6, 7)
+fig = plt.figure(figsize=(14, 2), dpi=300)
+plt.contourf(X, Y, np.mean(b_tyx, axis=0), cmap=cm.coolwarm)
+plt.colorbar()
 
 # %%
