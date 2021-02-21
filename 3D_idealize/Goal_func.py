@@ -54,10 +54,13 @@ def Slice3_AV(OAEF_R140, txt):
     XY_data = np.mean(OAEF_R140, axis=0)    # XY data
     ZY_data = np.mean(OAEF_R140, axis=1)    # ZY data
     ZX_data = np.mean(OAEF_R140, axis=2)    # ZX data
-
+    zlen = ZY_data.shape[0]
     X1 = np.arange(0, L0+1, 2)
     Y1 = np.arange(0, L0+1, 2)
-    Z1 = np.arange(0.5, 5.1, 0.5)
+    if zlen == 10:
+        Z1 = np.arange(0.5, 5.1, 0.5)
+    else:
+        Z1 = np.arange(1, 5.1, 1)
 
     XY_X, XY_Y = np.meshgrid(X1, Y1)
     ZY_Y, ZY_Z = np.meshgrid(Y1, Z1)
@@ -95,11 +98,13 @@ def Slice3_PEF(OAEF_R140, txt):
     XY_data = np.nanmean(OAEF_R140, axis=0)    # XY data
     ZY_data = np.nanmean(OAEF_R140, axis=1)    # ZY data
     ZX_data = np.nanmean(OAEF_R140, axis=2)    # ZX data
-
+    zlen = ZY_data.shape[0]
     X1 = np.arange(0, L0+1, 2)
     Y1 = np.arange(0, L0+1, 2)
-    Z1 = np.arange(0.5, 5.1, 0.5)
-
+    if zlen == 10:
+        Z1 = np.arange(0.5, 5.1, 0.5)
+    else:
+        Z1 = np.arange(1, 5.1, 1)
     XY_X, XY_Y = np.meshgrid(X1, Y1)
     ZY_Y, ZY_Z = np.meshgrid(Y1, Z1)
     ZX_X, ZX_Z = np.meshgrid(X1, Z1)
@@ -107,7 +112,7 @@ def Slice3_PEF(OAEF_R140, txt):
     fig = plt.figure(figsize=(12, 10), constrained_layout=True)
     widths = [8, 2]
     heights = [8, 2]
-    levels = np.arange(0,81,10)
+    levels = np.arange(0,91,10)
     cmap_p = cm.coolwarm
     # cmap_p = cm.cool_r
     spec = fig.add_gridspec(ncols=2, nrows=2, width_ratios=widths,
