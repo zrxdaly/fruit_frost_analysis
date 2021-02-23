@@ -50,26 +50,26 @@ w_tyx = np.load(Goal_dir[2])
 
 x = np.arange(0,801,2)
 y = np.arange(1,31,1)
-#%%
-def quiver2D(p_store, u_store, v_store, case_txt, x, y, nt, dt, fps):
-    X, Y = np.meshgrid(x, y) 
-    fig, ax = plt.subplots(figsize=(12, 2), dpi=300)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    con = ax.contourf(X, Y, p_store[0,:,:], cmap=cm.viridis)
-    fig.colorbar(con)
-    x_dim = 20
-    y_dim = 2
-    qax = ax.quiver(x[::x_dim], y[::y_dim], u_store[0,::y_dim,::x_dim], v_store[0,::y_dim,::x_dim])
-    fig.tight_layout()
+# #%%
+# def quiver2D(p_store, u_store, v_store, case_txt, x, y, nt, dt, fps):
+#     X, Y = np.meshgrid(x, y) 
+#     fig, ax = plt.subplots(figsize=(12, 2), dpi=300)
+#     ax.set_xlabel("x")
+#     ax.set_ylabel("y")
+#     con = ax.contourf(X, Y, p_store[0,:,:], cmap=cm.viridis)
+#     fig.colorbar(con)
+#     x_dim = 20
+#     y_dim = 2
+#     qax = ax.quiver(x[::x_dim], y[::y_dim], u_store[0,::y_dim,::x_dim], v_store[0,::y_dim,::x_dim])
+#     fig.tight_layout()
 
-    def animate(i):
-        con = ax.contourf(X, Y, p_store[i,:,:], cmap=cm.viridis)
-        qax = ax.quiver(x[::x_dim], y[::y_dim], u_store[i,::y_dim,::x_dim], v_store[i,::y_dim,::x_dim])
-        plt.title(r'$%s$ t = %.5f sec' % (case_txt, i * dt))
+#     def animate(i):
+#         con = ax.contourf(X, Y, p_store[i,:,:], cmap=cm.viridis)
+#         qax = ax.quiver(x[::x_dim], y[::y_dim], u_store[i,::y_dim,::x_dim], v_store[i,::y_dim,::x_dim])
+#         plt.title(r'$%s$ t = %.5f sec' % (case_txt, i * dt))
 
-    anim = FuncAnimation(fig, animate, frames=np.linspace(0, len(p_store[0,...]), nt).astype(int), interval=1)
-    anim.save('%s.mp4'%case_txt, dpi=300, fps=10, extra_args=['-vcodec', 'libx264'])
+#     anim = FuncAnimation(fig, animate, frames=np.linspace(0, len(p_store[0,...]), nt).astype(int), interval=1)
+#     anim.save('%s.mp4'%case_txt, dpi=300, fps=10, extra_args=['-vcodec', 'libx264'])
 
 # quiver2D(b_tyx, u_tyx, w_tyx, "wall full R", x, y, 285, 4, int(len(b_tyx[0,...])/100))
 
@@ -79,8 +79,8 @@ def Fun2D(u_store, case_txt, x, y, nt, dt, fps):
     X, Y = np.meshgrid(x, y) 
     fig = plt.figure(figsize=(12, 2), dpi=300)
     ax = plt.axes(xlabel='x', ylabel='y')
-    # levels = np.linspace(0.0, 0.6, 7)
-    levels = np.linspace(-0.3e-14, 0.3e-14, 7)
+    levels = np.linspace(0.0, 0.7, 7)
+    # levels = np.linspace(-0.3e-14, 0.3e-14, 7)
     con = plt.contourf(X, Y, u_store[0,:,:], levels = levels, cmap=cm.coolwarm)
     plt.xlim((0,500))
     plt.colorbar()
@@ -100,11 +100,15 @@ def Fun2D(u_store, case_txt, x, y, nt, dt, fps):
 
 #%%
 Fun2D(u_tyx, "u_slice", x, y, 285, 4, 10)
+
 #%%
 Fun2D(w_tyx, "w_slice", x, y, 285, 4, 10)
 
 #%%
 Fun2D(b_tyx, "b_slice", x, y, 285, 4, 10)
+
+#%%
+Fun2D((u_tyx**2 + w_tyx**2)**0.5, "TKE", x, y, 285, 4, 10)
 
 # %%
 X, Y = np.meshgrid(x, y) 
