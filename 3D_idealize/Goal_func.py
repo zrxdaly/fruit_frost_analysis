@@ -72,29 +72,29 @@ def Slice3_AV(OAEF_R140, txt):
     spec = fig.add_gridspec(ncols=2, nrows=2, width_ratios=widths,
                             height_ratios=heights)
     ax1 = fig.add_subplot(spec[0, 0])
-    cs = ax1.contourf(XY_X, XY_Y, XY_data, cmap=cm.coolwarm, vmin=0, vmax=50)
+    cs = ax1.contourf(XY_X, XY_Y, XY_data, cmap=cm.coolwarm)
     ax1.set_ylabel("y [m]", fontsize=18)
     ax1.set_title('%s operation' %txt)
 
     ax2 = fig.add_subplot(spec[0, 1])
-    ax2.contourf(ZX_Z, ZX_X, ZX_data, cmap=cm.coolwarm, vmin=0, vmax=50)
+    ax2.contourf(ZX_Z, ZX_X, ZX_data, cmap=cm.coolwarm)
     ax2.set_xlabel("z [m]", fontsize=18)
 
     ax3 = fig.add_subplot(spec[1, 0])
-    ax3.contourf(ZY_Y, ZY_Z, ZY_data, cmap=cm.coolwarm, vmin=0, vmax=50)
+    ax3.contourf(ZY_Y, ZY_Z, ZY_data, cmap=cm.coolwarm)
     ax3.set_xlabel("x [m]", fontsize=18)
     ax3.set_ylabel("z [m]", fontsize=18)
 
     fig.colorbar(cs, ax=[ax1, ax2, ax3], shrink=0.9)
     ax1.xaxis.set_major_formatter(nullfmt)
     ax2.yaxis.set_major_formatter(nullfmt)
-    plt.savefig("vr_rerun/WALL_%s_dis.pdf"%txt)
+    plt.savefig("UVW_output/WALL_%s_dis.pdf"%txt)
     # plt.tight_layout()
 
 # 3D projection of averaged EF with clipping of negative value
 def Slice3_PEF(OAEF_R140, txt):
     L0 = 800
-    OAEF_R140[OAEF_R140<1] = np.nan
+    OAEF_R140[OAEF_R140>6] = np.nan
     XY_data = np.nanmean(OAEF_R140, axis=0)    # XY data
     ZY_data = np.nanmean(OAEF_R140, axis=1)    # ZY data
     ZX_data = np.nanmean(OAEF_R140, axis=2)    # ZX data
@@ -112,7 +112,7 @@ def Slice3_PEF(OAEF_R140, txt):
     fig = plt.figure(figsize=(12, 10), constrained_layout=True)
     widths = [8, 2]
     heights = [8, 2]
-    levels = np.arange(0,91,10)
+    levels = np.arange(0,1.5,0.02)
     cmap_p = cm.coolwarm
     # cmap_p = cm.cool_r
     spec = fig.add_gridspec(ncols=2, nrows=2, width_ratios=widths,
@@ -134,7 +134,7 @@ def Slice3_PEF(OAEF_R140, txt):
     fig.colorbar(cs, ax=[ax1, ax2, ax3], shrink=0.9)
     ax1.xaxis.set_major_formatter(nullfmt)
     ax2.yaxis.set_major_formatter(nullfmt)
-    plt.savefig("vr_rerun/WALL_%s_PEF.pdf"%txt)
+    plt.savefig("UVW_output/WALL_%s_PEF.pdf"%txt)
 
 
 #%% the function used to calcuate the coverage volume over space
