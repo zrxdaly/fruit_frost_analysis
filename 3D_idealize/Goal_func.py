@@ -50,13 +50,13 @@ def ticks(y, pos):
 
 # 3D projection of averaged EF
 def Slice3_AV(OAEF_R140, txt):
-    L0 = 800
+    L0 = 125
     XY_data = np.mean(OAEF_R140, axis=0)    # XY data
     ZY_data = np.mean(OAEF_R140, axis=1)    # ZY data
     ZX_data = np.mean(OAEF_R140, axis=2)    # ZX data
     zlen = ZY_data.shape[0]
-    X1 = np.arange(0, L0+1, 2)
-    Y1 = np.arange(0, L0+1, 2)
+    X1 = np.arange(0, L0+1, 1)
+    Y1 = np.arange(0, L0+1, 1)
     if zlen == 10:
         Z1 = np.arange(0.5, 5.1, 0.5)
     else:
@@ -74,7 +74,7 @@ def Slice3_AV(OAEF_R140, txt):
     ax1 = fig.add_subplot(spec[0, 0])
     cs = ax1.contourf(XY_X, XY_Y, XY_data, cmap=cm.coolwarm)
     ax1.set_ylabel("y [m]", fontsize=18)
-    ax1.set_title('%s operation' %txt)
+    ax1.set_title('%s case' %txt)
 
     ax2 = fig.add_subplot(spec[0, 1])
     ax2.contourf(ZX_Z, ZX_X, ZX_data, cmap=cm.coolwarm)
@@ -88,7 +88,7 @@ def Slice3_AV(OAEF_R140, txt):
     fig.colorbar(cs, ax=[ax1, ax2, ax3], shrink=0.9)
     ax1.xaxis.set_major_formatter(nullfmt)
     ax2.yaxis.set_major_formatter(nullfmt)
-    plt.savefig("UVW_output/WALL_%s_dis.pdf"%txt)
+    plt.savefig("paraffin/case_%s.pdf"%txt)
     # plt.tight_layout()
 
 # 3D projection of averaged EF with clipping of negative value

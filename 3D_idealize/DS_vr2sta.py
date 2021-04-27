@@ -309,22 +309,22 @@ def plotRC(num, txt):
         plt.plot(ROTA_P, LIM2L(i)[num], "-*", label=str(i)+'%', linewidth = ii/2) 
         # np.save("PARA/ROTA/%s_%s.npy" %(txt, i),LIM2L(i)[num])  # uncomment this one to save the volume data
     ax.set_xlabel('Rotation period [s]',fontsize=18)
-    # ax.set_ylabel("Coverage Volume [**2*5m3]",fontsize=18)
+    ax.set_ylabel("Coverage Volume [**2*5m3]",fontsize=18)
     ax.set_ylim([0,650])
     
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),fontsize = 20)
+    # ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),fontsize = 20)
     # ,fontsize = 20
     plt.title("%s operation"%txt,fontsize=18)
     # plt.tight_layout()
-    # plt.savefig("vr_rerun/%sRC.pdf"%txt)
+    plt.savefig("vr_rerun/%sRC.pdf"%txt)
 #%%
 plotRC(0, 'RR')
 #%%
 plotRC(1, 'FR')
 #%%
-plotRC(2, 'HR')
+plotRC(2, 'AR')
 #%% to get some statistics over the distribution of the statistics
 
 
