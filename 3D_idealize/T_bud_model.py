@@ -40,17 +40,17 @@ rho_bud = 700     # kg m-3
 rho_l   = 700     # kg m-3
 rho_air = 1.225   # kg m-3
 
-r_dts = 1.6e-3
-r_bud = 5e-3
+d_dts = 1.6e-3
+d_bud = 5e-3
 d_l = 0.04   # m width of leave
-t_l = 0.001
+t_l = 0.0002
 
 
 def TGP(cs, rho, r):
     return(cs * rho * (r/2))
 
-TGP_dts = TGP(cs_dts, rho_dts, r_dts)
-TGP_bud = TGP(cs_bud, rho_bud, r_bud)
+TGP_dts = TGP(cs_dts, rho_dts, d_dts)
+TGP_bud = TGP(cs_bud, rho_bud, d_bud)
 TGP_l   = TGP(cs_l  , rho_l  , t_l  )
 
 Ka = 0.0255   # Wm-1K-1
@@ -99,7 +99,7 @@ def h_coef_CG(U, d):  # U: velocity   d: leave width or diameter of dts
     Nu = C * Re ** m * Pr ** n
     h = Ka * Nu / d
     return(h)
-
+#%%
 ## False storage gives equillibrium state of the equations
 def T_model(T_2m_380m, UU_2m, d, TGP_dts, emi_dts, storage):
     EN_lw = emi_surf * sig * T_surf ** 4 * emi_dts
@@ -121,73 +121,74 @@ def T_model(T_2m_380m, UU_2m, d, TGP_dts, emi_dts, storage):
 
     return(T_DTS)
 
-T_DTS = T_model(T_2m_380m, UU_2m, 2 * r_dts, TGP_dts, emi_dts, False)
-T_bud = T_model(T_2m_380m, UU_2m, 2 * r_bud, TGP_bud, emi_bud, False)
-T_l = T_model(T_2m_380m, UU_2m, d_l, TGP_l, emi_l, False)
+T_DTS = T_model(T_2m_380m, UU_2m, d_dts/4, TGP_dts, emi_dts, True)
+T_bud = T_model(T_2m_380m, UU_2m, d_bud/4, TGP_bud, emi_bud, True)
+T_l = T_model(T_2m_380m, UU_2m, t_l, TGP_l, emi_l, True)
 
-T_DTS_u2 = T_model(T_2m_380m, UU_2m * 2, 2 * r_dts, TGP_dts, emi_dts, False)
-T_bud_u2 = T_model(T_2m_380m, UU_2m * 2, 2 * r_bud, TGP_bud, emi_bud, False)
-T_l_u2 = T_model(T_2m_380m, UU_2m * 2, d_l, TGP_l, emi_l, False)
+# T_DTS_u2 = T_model(T_2m_380m, UU_2m * 2, 2 * d_dts, TGP_dts, emi_dts, False)
+# T_bud_u2 = T_model(T_2m_380m, UU_2m * 2, 2 * d_bud, TGP_bud, emi_bud, False)
+# T_l_u2 = T_model(T_2m_380m, UU_2m * 2, d_l, TGP_l, emi_l, False)
 
 
 
-# #%% R. Leuning 1988 model for h
-# def h_coef_RL(U, d, Ta, Tl):  # U: velocity   d: leave width or diameter of dts
-#     Re = U * d / vis
-#     Gr = 1/Ta * g * d**3 * (Ta - Tl) / vis**2
-#     if Gr/Re**2 > 16:
-#         an = 1.34  # DIXON, MICHAEL GRACE, JOHN 1983
-#         b = 0.171
-#         Nu = an * (Gr * Pr) ** b
-#     # elif Gr/Re**2 < 0.1:
-#     else:
-#         Nu = C * Re ** 0.5 * Pr ** (1/3)
-#     h = Ka * Nu / d
-#     return(h)
+#%% R. Leuning 1988 model for h
+def h_coef_RL(U, d, Ta, Tl):  # U: velocity   d: leave width or diameter of dts
+    Re = U * d / vis
+    Gr = 1/Ta * g * d**3 * (Ta - Tl) / vis**2
+    if Gr/Re**2 > 16:
+        an = 1.34  # DIXON, MICHAEL GRACE, JOHN 1983
+        b = 0.171
+        Nu = an * (Gr * Pr) ** b
+    elif Gr/Re**2 < 0.1:
+        Nu = C * Re ** 0.5 * Pr ** (1/3)
+    else:
+        
+    h = Ka * Nu / d
+    return(h)
 
-# def T_model_RL(T_2m_380m, UU_2m, d, TGP_dts, emi_dts):
-#     EN_lw = emi_surf * sig * T_surf ** 4 * emi_dts
+def T_model_RL(T_2m_380m, UU_2m, d, TGP_dts, emi_dts):
+    EN_lw = emi_surf * sig * T_surf ** 4 * emi_dts
 
-#     T_DTS = np.zeros_like(T_2m_380m)
-#     T_DTS[0] = T_2m_380m[0]
-#     # x = Symbol("x")
-#     # LW_emit0 = emi_dts * sig * x ** 4 
-#     # T_DTS[0] = solve(LW_emit0 + h_coef_RL(UU_2m[0], d, T_2m_380m[0], x) * (x - T_2m_380m[0]) - EN_lw, x)[1]
+    T_DTS = np.zeros_like(T_2m_380m)
+    T_DTS[0] = T_2m_380m[0]
+    # x = Symbol("x")
+    # LW_emit0 = emi_dts * sig * x ** 4 
+    # T_DTS[0] = solve(LW_emit0 + h_coef_RL(UU_2m[0], d, T_2m_380m[0], x) * (x - T_2m_380m[0]) - EN_lw, x)[1]
 
-#     for i in range(1,1020):
-#         LW_emit = emi_dts * sig * T_DTS[i-1] ** 4 
-#         T_DTS[i] = T_DTS[i-1] + (EN_lw - LW_emit - h_coef_RL(UU_2m[i-1], d, T_2m_380m[i-1], T_DTS[i-1]) * (T_DTS[i-1] - T_2m_380m[i-1])) / TGP_dts
+    for i in range(1,1020):
+        LW_emit = emi_dts * sig * T_DTS[i-1] ** 4 
+        T_DTS[i] = T_DTS[i-1] + (EN_lw - LW_emit - h_coef_RL(UU_2m[i-1], d, T_2m_380m[i-1], T_DTS[i-1]) * (T_DTS[i-1] - T_2m_380m[i-1])) / TGP_dts
 
-#     return(T_DTS)
+    return(T_DTS)
 
-# # T_DTS_RL = T_model_RL(T_2m_380m, UU_2m, 2 * r_dts, TGP_dts, emi_dts)
-# # T_bud_RL = T_model_RL(T_2m_380m, UU_2m, 2 * r_bud, TGP_bud, emi_bud)
+# T_DTS_RL = T_model_RL(T_2m_380m, UU_2m, 2 * d_dts, TGP_dts, emi_dts)
+# T_bud_RL = T_model_RL(T_2m_380m, UU_2m, 2 * d_bud, TGP_bud, emi_bud)
 # T_l_RL = T_model_RL(T_2m_380m, UU_2m, d_l, TGP_l, emi_l)
 
-# #%% D.N. Jordan et al 1994 model for h
-# def h_coef_DNJ(U, d, Ta, Tl):  # U: velocity   d: leave width or diameter of dts
-#     Re = U * d / vis
-#     Gr = 1/Ta * g * d**3 * (Ta - Tl) / vis**2
-#     Nu_for = 0.64 * Re ** 0.44 * Pr ** 0.33
-#     Nu_fre = 0.4 * (Gr * Pr) ** 0.25
-#     Nu = (Nu_for ** 3.55 + Nu_fre ** 3.55)**0.28
-#     h = Ka * Nu / d
-#     return(h)
+#%% D.N. Jordan et al 1994 model for h
+def h_coef_DNJ(U, d, Ta, Tl):  # U: velocity   d: leave width or diameter of dts
+    Re = U * d / vis
+    Gr = 1/Ta * g * d**3 * (Ta - Tl) / vis**2
+    Nu_for = 0.64 * Re ** 0.44 * Pr ** 0.33
+    Nu_fre = 0.4 * (Gr * Pr) ** 0.25
+    Nu = (Nu_for ** 3.55 + Nu_fre ** 3.55)**0.28
+    h = Ka * Nu / d
+    return(h)
 
-# def T_model_DNJ(T_2m_380m, UU_2m, d, TGP_dts, emi_dts):
-#     EN_lw = emi_surf * sig * T_surf ** 4 * emi_dts
+def T_model_DNJ(T_2m_380m, UU_2m, d, TGP_dts, emi_dts):
+    EN_lw = emi_surf * sig * T_surf ** 4 * emi_dts
 
-#     T_DTS = np.zeros_like(T_2m_380m)
-#     T_DTS[0] = T_2m_380m[0]
-#     # x = Symbol("x")
-#     # LW_emit0 = emi_dts * sig * x ** 4 
-#     # T_DTS[0] = solve(LW_emit0 + h_coef_DNJ(UU_2m[0], d, T_2m_380m[0], x) * (x - T_2m_380m[0]) - EN_lw, x)[1]
+    T_DTS = np.zeros_like(T_2m_380m)
+    T_DTS[0] = T_2m_380m[0]
+    # x = Symbol("x")
+    # LW_emit0 = emi_dts * sig * x ** 4 
+    # T_DTS[0] = solve(LW_emit0 + h_coef_DNJ(UU_2m[0], d, T_2m_380m[0], x) * (x - T_2m_380m[0]) - EN_lw, x)[1]
 
-#     for i in range(1,1020):
-#         LW_emit = emi_dts * sig * T_DTS[i-1] ** 4 
-#         T_DTS[i] = T_DTS[i-1] + (EN_lw - LW_emit - h_coef_DNJ(UU_2m[i-1], d, T_2m_380m[i-1], T_DTS[i-1]) * (T_DTS[i-1] - T_2m_380m[i-1])) / TGP_dts
+    for i in range(1,1020):
+        LW_emit = emi_dts * sig * T_DTS[i-1] ** 4 
+        T_DTS[i] = T_DTS[i-1] + (EN_lw - LW_emit - h_coef_DNJ(UU_2m[i-1], d, T_2m_380m[i-1], T_DTS[i-1]) * (T_DTS[i-1] - T_2m_380m[i-1])) / TGP_dts
 
-#     return(T_DTS)
+    return(T_DTS)
 
 # T_l_DNJ = T_model_DNJ(T_2m_380m, UU_2m, d_l, TGP_l, emi_l)
 
@@ -198,14 +199,14 @@ def ANA_T(T_2m_380m, UU_2m, d, TGP_dts, emi_dts):
     Delta_T = -(EN_lw - emi_dts * sig * T_2m_380m**4)/(4 * emi_dts * sig * T_2m_380m **3 + h_coef_CG(UU_2m[0], d))
     return(Delta_T)
 
-# T_DTS_ANA = ANA_T(T_2m_380m, UU_2m, 2 * r_dts, TGP_dts, emi_dts)
-# T_bud_ANA = ANA_T(T_2m_380m, UU_2m, 2 * r_bud, TGP_bud, emi_bud)
+# T_DTS_ANA = ANA_T(T_2m_380m, UU_2m, 2 * d_dts, TGP_dts, emi_dts)
+# T_bud_ANA = ANA_T(T_2m_380m, UU_2m, 2 * d_bud, TGP_bud, emi_bud)
 # T_l_ANA = ANA_T(T_2m_380m, UU_2m, d_l, TGP_l, emi_l)
 
 T_2m = T_surf * np.ones_like(T_2m_380m)
 UU = np.linspace(0,5,1020)
-T_DTS_ANA = ANA_T(T_2m, UU, 2 * r_dts, TGP_dts, emi_dts)
-T_bud_ANA = ANA_T(T_2m, UU, 2 * r_bud, TGP_bud, emi_bud)
+T_DTS_ANA = ANA_T(T_2m, UU, 2 * d_dts, TGP_dts, emi_dts)
+T_bud_ANA = ANA_T(T_2m, UU, 2 * d_bud, TGP_bud, emi_bud)
 T_l_ANA = ANA_T(T_2m, UU, d_l, TGP_l, emi_l)
 
 
@@ -224,13 +225,13 @@ h2 = plt.plot(T, T_l - T_surf, label="leave",color = CLR[1])
 
 # h2 = plt.plot(T, T_l_RL - T_surf, label="RL M",color = CLR[7])
 # h2 = plt.plot(T, T_l_DNJ - T_surf, label="RL M",color = CLR[3])
-ax.set_ylim(-4, 4)
+ax.set_ylim(-1, 4)
 ax.set_xlabel('Time [s]',fontsize=18)
 ax.set_ylabel("temperature [degree]",fontsize=18)
 # plt.title("double wind speed",fontsize=18)
 legend = plt.legend(loc='best', frameon=False,fontsize = 18)
 plt.tight_layout()
-# plt.savefig("No_storage_E95_W1.pdf")
+plt.savefig("model_bud.pdf")
 
 # %% plot the corelation between the wind and temperature difference
 T = np.arange(0, 1020, 1)
@@ -262,4 +263,71 @@ legend = plt.legend(loc='best', frameon=False,fontsize = 18)
 plt.tight_layout()
 # plt.savefig("W1_E95.pdf")
 
+# %% analytical solution of Energy balance equation
+# test the impact of wind speed
+
+
+def EB_analytical(T_air, UU, d, emi_dts, T_surf, emi_surf):
+    EN_lw = emi_surf * sig * T_surf ** 4
+
+    Delta_T = -(EN_lw - sig * T_air**4)/(4 * sig * T_air **3 + h_coef_CG(UU, d)/emi_dts)
+    return(Delta_T)
+
+#%% constant temp and variation of wind
+Ta = 4 + T_surf
+UU = np.arange(0,5,0.01)
+Delta_T_DTS = np.zeros_like(UU)
+Delta_T_bud = np.zeros_like(UU)
+Delta_T_l = np.zeros_like(UU)
+
+for i in range(len(UU)):
+    Delta_T_DTS[i] = EB_analytical(Ta, UU[i], d_dts/4, emi_dts, T_surf, emi_surf)
+    Delta_T_bud[i] = EB_analytical(Ta, UU[i], d_bud/4, emi_bud, T_surf, emi_surf)
+    Delta_T_l[i] = EB_analytical(Ta, UU[i], t_l/2, emi_l, T_surf, emi_surf)
+    
+
+# %%
+# /emi_dts/(4*sig*Ta**3)
+fig1 = plt.figure(figsize=(6.4, 4.8))
+ax = fig1.add_subplot(1,1,1)
+h1 = plt.plot(UU, h_coef_CG(UU, 2 * d_dts)/emi_dts, "*", label="DTS",color = CLR[0])  
+h1 = plt.plot(UU, h_coef_CG(UU, 2 * d_bud)/emi_bud, "*", label="Bud",color = CLR[4])  
+h1 = plt.plot(UU, h_coef_CG(UU, t_l/2)/emi_l, "*", label="Leaf",color = CLR[1])  
+plt.xscale("log")
+plt.yscale("log")
+# ax.set_ylim(-4, 4)
+ax.set_xlabel(r'wind [$m s^{-1}$]',fontsize=18)
+ax.set_ylabel(r"$\frac{g_{hx}}{\epsilon}$ [$W m^{-2} K^{-1}$]",fontsize=18)
+legend = plt.legend(loc='best', frameon=False,fontsize = 18)
+plt.tight_layout()
+plt.savefig("UU_h.pdf")
+# %%
+fig1 = plt.figure(figsize=(6.4, 4.8))
+ax = fig1.add_subplot(1,1,1)
+h1 = plt.plot(UU, Delta_T_DTS, "*", label="DTS",color = CLR[0])  
+h1 = plt.plot(UU, Delta_T_bud, "*", label="Bud",color = CLR[4])  
+h1 = plt.plot(UU, Delta_T_l, "*", label="Leaf",color = CLR[1])  
+plt.xscale("log")
+plt.yscale("log")
+# ax.set_ylim(-4, 4)
+ax.set_xlabel(r'wind [$m s^{-1}$]',fontsize=18)
+ax.set_ylabel(r"$\Delta$  T [K]",fontsize=18)
+legend = plt.legend(loc='best', frameon=False,fontsize = 18)
+plt.tight_layout()
+plt.savefig("UU_DT.pdf")
+# %%
+# %%
+va = np.arange(0,30, 0.01)
+fig1 = plt.figure(figsize=(6.4, 4.8))
+ax = fig1.add_subplot(1,1,1)
+h1 = plt.plot(va, np.log(va+1), "*", label="DTS",color = CLR[0])  
+h1 = plt.plot(va, np.log(va), "*", label="Bud",color = CLR[4])  
+h1 = plt.plot(va, np.log(va+1) - np.log(va), "*", label="dd",color = CLR[1])  
+# plt.xscale("log")
+# plt.yscale("log")
+# ax.set_ylim(-4, 4)
+# ax.set_xlabel('wind [ms-1]',fontsize=18)
+# ax.set_ylabel("Delta T [degree]",fontsize=18)
+legend = plt.legend(loc='best', frameon=False,fontsize = 18)
+plt.tight_layout()
 # %%
